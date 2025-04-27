@@ -1,0 +1,10 @@
+{
+    "context_map_dark": {
+      "bg":        "#FFFFFF",
+      "title":     "#081F5C",
+      "footer":    "#001F60",
+      "label":     "#2B4B73",
+      "center":    "#F79545",
+      "node":      "#00B050"
+    }
+  }
