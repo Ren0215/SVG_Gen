@@ -1,10 +1,18 @@
-{% macro lines(txt, limit=24) -%}
+{% macro lines(txt, cx, limit=20) -%}
   {%- set t = txt|truncate(limit, end='…') -%}
-  {%- set cols = 12 -%} {# ≒ 2 全角 × 6 #}
+  {%- set cols = 10 -%}
   {%- set wrapped = t|wordwrap(cols, break_long_words=true) -%}
-  {%- for l in wrapped.split('\n')[:3] -%}
-    <tspan x="{{ cx }}" dy="{{ loop.first and '-12' or '14' }}">{{ l }}</tspan>
-  {%- endfor -%}
+  {%- set lines = wrapped.split('\n')[:2] -%}
+  {%- set line_count = lines|length -%}
+  {# 行数に応じて適切なオフセットを計算 #}
+  {%- if line_count == 1 -%}
+    <tspan x="{{ cx }}" dy="0">{{ lines[0] }}</tspan>
+  {%- else -%}
+    {%- set initial_offset = -6 -%}
+    {%- for l in lines -%}
+      <tspan x="{{ cx }}" dy="{{ loop.first and initial_offset or '12' }}">{{ l }}</tspan>
+    {%- endfor -%}
+  {%- endif -%}
 {%- endmacro %}
 
 {% set P = palette_colors %}{% set C = content %}
@@ -12,15 +20,15 @@
      xmlns="http://www.w3.org/2000/svg" text-rendering="optimizeLegibility">
 
   <rect width="1280" height="720" fill="{{ P.bg }}" />
-  <text x="41"  y="692" font-size="7" font-family="Arial" fill="{{ P.footer }}">
+  <text x="41" y="692" font-size="7" font-family="Arial" fill="{{ P.footer }}">
     CONFIDENTIAL {{ C.company }}. All rights reserved
   </text>
-  <text x="33"  y="53" font-size="20" font-weight="700" font-family="Arial"
+  <text x="33" y="53" font-size="20" font-weight="700" font-family="Arial"
         fill="{{ P.title }}">{{ C.company }} コンテキストマップ</text>
 
   <circle cx="640" cy="351" r="55" fill="{{ P.center }}" />
-  <text   x="640" y="351" text-anchor="middle" dominant-baseline="middle"
-          font-size="11" font-family="Arial" fill="#fff">{{ C.center }}</text>
+  <text x="640" y="351" text-anchor="middle" dominant-baseline="middle"
+        font-size="12" font-family="Arial" fill="#fff">{{ C.center }}</text>
 
   {# ------------ label bars ------------ #}
   {% for label,x,y in [
@@ -32,24 +40,31 @@
           font-family="Arial" fill="#fff">{{ label }}</text>
   {% endfor %}
 
-  {# ------------ node coordinates ------------ #}
+  {# ------------ ノード座標（楕円用に最適化） ------------ #}
   {% set coords = {
-    'strategy':  [(263,145),(408,145),(188,217),(333,217),(478,217)],
-    'product':   [(70,297),(215,297),(140,363),(70,432),(215,432)],
-    'top':       [(263,513),(408,513),(188,582),(333,582),(478,582)],
-    'industry':  [(730,513),(875,513),(660,582),(805,582),(950,582)],
-    'society':   [(972,297),(1117,297),(1042,363),(972,432),(1117,432)],
-    'global':    [(730,145),(875,145),(660,217),(805,217),(950,217)]
+    'strategy':  [(328,147.5),(463,147.5),(598,147.5),(263,217),(399,217)],
+    'product':   [(111,299.5),(245,299.5),(181,357.5),(111,420.5),(245,420.5)],
+    'top':       [(328,509.5),(463,509.5),(598,509.5),(263,572.5),(399,572.5)],
+    'industry':  [(810,509.5),(944,509.5),(1081,509.5),(745,572.5),(880,572.5)],
+    'society':   [(1038,299.5),(1172,299.5),(1108,357),(1038,419.5),(1172,420.5)],
+    'global':    [(810,147.5),(944,147.5),(1081,147.5),(745,210.5),(880,210.5)]
   } %}
+
+  {# ------------ ノードサイズ（楕円） ------------ #}
+  {% set node_width = 130 %}
+  {% set node_height = 59 %}
+
+  {# ------------ デバッグ情報 ------------ #}
+  <!-- グローバルデータ: {{ C.global }} -->
 
   {# ------------ draw nodes ------------ #}
   {% for cat,nodes in coords.items() %}
     {% for idx,(cx,cy) in enumerate(nodes) %}
       {% if idx < C[cat]|length %}
-        <circle cx="{{ cx }}" cy="{{ cy }}" r="34" fill="{{ P.node }}" />
+        <ellipse cx="{{ cx }}" cy="{{ cy }}" rx="{{ node_width / 2 }}" ry="{{ node_height / 2 }}" fill="{{ P.node }}" />
         <text x="{{ cx }}" y="{{ cy }}" text-anchor="middle"
-              font-size="10" font-family="Arial" fill="#fff"
-              dominant-baseline="middle">{{ lines(C[cat][idx]) }}</text>
+              font-size="11" font-family="Arial" fill="#fff"
+              dominant-baseline="middle">{{ lines(C[cat][idx], cx) }}</text>
       {% endif %}
     {% endfor %}
   {% endfor %}
