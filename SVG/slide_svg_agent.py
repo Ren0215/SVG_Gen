@@ -1,10 +1,3 @@
-"""
-slide_svg_agent.py – グローバル文脈確実修正版
-=============================
-- グローバル文脈の確実表示を保証
-- Pydanticモデルのエイリアス問題を回避
-- LangGraphとLLM機能を維持
-"""
 from __future__ import annotations
 import argparse, json, os, re, time
 from pathlib import Path
