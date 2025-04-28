@@ -36,8 +36,8 @@
       ("TOP文脈",383,446),     ("業界トレンド文脈",736,446),
       ("社会トレンド文脈",848,338), ("グローバル文脈",736,249)] %}
     <rect x="{{ x }}" y="{{ y }}" width="161" height="25" fill="{{ P.label }}" />
-    <text x="{{ x+10 }}" y="{{ y+17 }}" font-size="11" font-weight="700"
-          font-family="Arial" fill="#fff">{{ label }}</text>
+    <text x="{{ x + 80.5 }}" y="{{ y+17 }}" font-size="11" font-weight="700"
+          font-family="Arial" fill="#fff" text-anchor="middle">{{ label }}</text>
   {% endfor %}
 
   {# ------------ ノード座標（楕円用に最適化） ------------ #}
@@ -53,9 +53,6 @@
   {# ------------ ノードサイズ（楕円） ------------ #}
   {% set node_width = 130 %}
   {% set node_height = 59 %}
-
-  {# ------------ デバッグ情報 ------------ #}
-  <!-- グローバルデータ: {{ C.global }} -->
 
   {# ------------ draw nodes ------------ #}
   {% for cat,nodes in coords.items() %}
